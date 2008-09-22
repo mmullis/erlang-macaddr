@@ -15,8 +15,12 @@
 %%%    macaddr:address_list
 %%% </pre>
 %%% @end
+
 %%% Created : 22 Sep 2008 by Michael Mullis <michael@mullistechnologies.com>
+
 %%% @copyright 2008 Michael Mullis
+%%% need this to keep the next line from being added to doc
+%%% @end
 %%%-------------------------------------------------------------------
 -module(macaddr).
 -author("michael@mullistechnologies.com").
