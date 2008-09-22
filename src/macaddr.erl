@@ -69,24 +69,24 @@ address_list() ->
   {ok, ALines} = regexp:split(join(LinesLists," "), "[\r\n]"),
   Lines = lists:filter(fun(Elem) -> Elem /= [] end, ALines),
 
-    MacRegex = "[: ]((?:[0-9a-fA-F][0-9a-fA-F][:\-]){5}[0-9a-fA-F][0-9a-fA-F])",
-    Candidates0 = lists:foldl(fun(Line, Acc) ->
-                                      case re:run(join(Line,""), MacRegex, [{capture,[1]}]) of
-                                          {match, [{Start, Length}]} ->
-                                              MacAddress = string:strip(lists:sublist(Line, Start, Length+1)),
-                                              %% io:format("MACADDRESS: ~p~n", [MacAddress]),
-                                              [MacAddress|Acc];
-                                          _ ->
-                                              Acc
-                                      end
-                              end, [], Lines),
+  MacRegex = "[: ]((?:[0-9a-fA-F][0-9a-fA-F][:\-]){5}[0-9a-fA-F][0-9a-fA-F])",
+  Candidates0 = lists:foldl(fun(Line, Acc) ->
+                                case re:run(join(Line,""), MacRegex, [{capture,[1]}]) of
+                                  {match, [{Start, Length}]} ->
+                                    MacAddress = string:strip(lists:sublist(Line, Start, Length+1)),
+                                    {ok, StdMacAddress, _} =  regexp:gsub(MacAddress, "-", ":"),
+                                    [StdMacAddress|Acc];
+                                  _ ->
+                                    Acc
+                                end
+                            end, [], Lines),
 
-    Candidates = lists:reverse(lists:filter(fun(Elem) -> Elem /= "00-00-00-00-00-00" end, Candidates0)),
+    Candidates = lists:reverse(lists:filter(fun(Elem) -> Elem /= "00:00:00:00:00:00" end, Candidates0)),
     case length(Candidates) of
         0 -> throw({error, {no_mac_address_candidate, "No Mac Address"}});
         _ -> ok
     end,
-    Candidates.
+    lists:usort(Candidates).  % remove duplicates
 
 %%% @spec address() -> string()
 address() ->
