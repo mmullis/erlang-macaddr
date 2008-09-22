@@ -1,0 +1,9 @@
+% This is an -*- erlang -*- file.
+
+{application, macaddr,
+ [{description, "Macaddr"},
+  {vsn, "%VSN%"},
+  {modules, [macaddr]},
+  {registered,[]},
+  {applications, [stdlib]},
+  {env, []}]}.

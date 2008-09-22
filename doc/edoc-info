@@ -1,0 +1,3 @@
+{application,macaddr}.
+{packages,[]}.
+{modules,[macaddr]}.

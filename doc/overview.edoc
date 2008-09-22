@@ -1,0 +1,9 @@
+@author Michael Mullis <michael@mullistechnologies.com>
+@copyright 2008 Mullis Technologies
+@version 0.1
+@title Macaddr documentation
+
+@doc
+== Introduction ==
+
+Macaddr is a library for Erlang that presents MAC address information.
