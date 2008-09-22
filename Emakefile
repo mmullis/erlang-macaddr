@@ -1,6 +1,3 @@
-doc() ->
-    doc("doc").
-doc(DocPath) ->
-    {ok, Makefiles} = file:consult("Emakefile"),
-    Files = lists:map(fun({F, _Opts}) -> F end, Makefiles),
-    edoc:files(Files, [{dir,DocPath}]).
+{"src/*", [debug_info, {outdir, "ebin"}]}.
+{"test/*", [debug_info, {outdir, "ebin"}]}.
+
