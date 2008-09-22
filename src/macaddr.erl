@@ -16,14 +16,14 @@
 %%% 
 %%%    macaddr:address_list
 %%%
-%%% Created : 22 Sep 2008 by  <mmullis@MTC_OFFICE_1>
+%%% Created : 22 Sep 2008 by Michael Mullis <michael@mullistechnologies.com>
 %%%-------------------------------------------------------------------
 -module(macaddr).
 -author("michael@mullistechnologies.com").
 -export([]).
 -compile([export_all]).
 
--vsn("1.0.0").
+-vsn("0.1.0").
 %%     ##
 %%     # Accessor for the system's first MAC address, requires a call to #address
 %%     # first

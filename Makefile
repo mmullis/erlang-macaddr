@@ -6,7 +6,6 @@ include vsn.mk
 
 DOC_OPTS={def,{version,\"$(MACADDR_VSN)\"}}
 
-
 all: subdirs
 
 subdirs:
