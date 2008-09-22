@@ -24,10 +24,9 @@
 %%%-------------------------------------------------------------------
 -module(macaddr).
 -author("michael@mullistechnologies.com").
--export([address/0, address_list/0]).
--compile([export_all]).
-
 -vsn("0.1.0").
+
+-export([address/0, address_list/0]).
 
 %%% @doc Join elements of a list using separator.
 join([H|T], Sep) ->
