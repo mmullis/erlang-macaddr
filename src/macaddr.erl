@@ -25,12 +25,24 @@
 
 -vsn("0.1.0").
 
-%%% @doc Join elements of a list using separator. 
+%%% @doc Join elements of a list using separator.
 join([H|T], Sep) ->
     lists:flatten([H | [[Sep, X] || X <- T]]).
 
 file_exists(FileName) ->
-    filelib:is_regular(FileName).
+  case filelib:is_regular(FileName) of
+    true ->
+      true;
+    %% Even if its not a regular file, it might still exist
+    %% /dev/null exhibits this behavior
+    false ->
+      case filelib:last_modified(FileName) of
+        0 ->
+          false;
+        _ ->
+          true
+      end
+  end.
 
 identify_null_file() ->
     case file_exists("/dev/null") of
@@ -54,8 +66,8 @@ address_list() ->
     {ok, ALines} = regexp:split(join(LinesLists," "), "[\r\n]"),
     Lines = lists:filter(fun(Elem) -> Elem /= [] end, ALines),
 
-    MacRegex = "[: ]((?:[0-9A-F][0-9A-F][:\-]){5}[0-9A-F][0-9A-F])",
-    Candidates0 = lists:foldl(fun(Line, Acc) -> 
+    MacRegex = "[: ]((?:[0-9a-fA-F][0-9a-fA-F][:\-]){5}[0-9a-fA-F][0-9a-fA-F])",
+    Candidates0 = lists:foldl(fun(Line, Acc) ->
                                       case re:run(join(Line,""), MacRegex, [{capture,[1]}]) of
                                           {match, [{Start, Length}]} ->
                                               MacAddress = string:strip(lists:sublist(Line, Start, Length+1)),
@@ -65,7 +77,7 @@ address_list() ->
                                               Acc
                                       end
                               end, [], Lines),
-    
+
     Candidates = lists:reverse(lists:filter(fun(Elem) -> Elem /= "00-00-00-00-00-00" end, Candidates0)),
     case length(Candidates) of
         0 -> throw({error, {no_mac_address_candidate, "No Mac Address"}});
