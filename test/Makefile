@@ -8,6 +8,7 @@ INCLUDE=../include
 ERL_COMPILE_FLAGS += -I$(INCLUDE) +warn_unused_vars +nowarn_shadow_vars +warn_unused_import
 
 SOURCES= \
+	macaddr_tests.erl \
 	macaddr_basic_test.erl
 
 OBJECTS=$(SOURCES:%.erl=$(EBIN)/%.$(EMULATOR))

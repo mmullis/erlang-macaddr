@@ -1,6 +1,6 @@
 APPNAME=macaddr
 
-SUB_DIRECTORIES = src
+SUB_DIRECTORIES = src test
 
 include vsn.mk
 
@@ -10,12 +10,13 @@ all: subdirs
 
 subdirs:
 	@for d in $(SUB_DIRECTORIES); do \
-	  	(cd $$d; $(MAKE)); \
+		(cd $$d; $(MAKE)); \
+		echo $$d; \
 	done
 
 clean:
 	@for d in $(SUB_DIRECTORIES); do \
-	  	(cd $$d; $(MAKE) clean); \
+		(cd $$d; $(MAKE) clean); \
 	done
 
 docs:
@@ -23,4 +24,4 @@ docs:
 
 test: subdirs
 	@echo Testing...
-	@erl -noshell -pa ebin -s eunit test -s init stop
+	@erl -noshell -pa ebin -s macaddr_tests test -s init stop
