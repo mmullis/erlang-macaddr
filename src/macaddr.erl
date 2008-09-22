@@ -65,9 +65,9 @@ get_interface_info(Cmd) ->
 
 %%% @spec address_list() -> List
 address_list() ->
-    LinesLists = lists:map(fun get_interface_info/1, ["/sbin/ifconfig", "/bin/ifconfig", "ifconfig", "ipconfig /all"]),
-    {ok, ALines} = regexp:split(join(LinesLists," "), "[\r\n]"),
-    Lines = lists:filter(fun(Elem) -> Elem /= [] end, ALines),
+  LinesLists = lists:map(fun get_interface_info/1, ["/sbin/ifconfig", "/bin/ifconfig", "ifconfig", "ipconfig /all"]),
+  {ok, ALines} = regexp:split(join(LinesLists," "), "[\r\n]"),
+  Lines = lists:filter(fun(Elem) -> Elem /= [] end, ALines),
 
     MacRegex = "[: ]((?:[0-9a-fA-F][0-9a-fA-F][:\-]){5}[0-9a-fA-F][0-9a-fA-F])",
     Candidates0 = lists:foldl(fun(Line, Acc) ->
