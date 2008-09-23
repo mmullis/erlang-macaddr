@@ -67,26 +67,33 @@ get_interface_info(Cmd) ->
 address_list() ->
   LinesLists = lists:map(fun get_interface_info/1, ["/sbin/ifconfig", "/bin/ifconfig", "ifconfig", "ipconfig /all"]),
   {ok, ALines} = regexp:split(join(LinesLists," "), "[\r\n]"),
-  Lines = lists:filter(fun(Elem) -> Elem /= [] end, ALines),
+  Lines = lists:filter(fun(Elem) ->  Elem /= []  end, ALines),
 
-  MacRegex = "[: ]((?:[0-9a-fA-F][0-9a-fA-F][:\-]){5}[0-9a-fA-F][0-9a-fA-F])",
-  Candidates0 = lists:foldl(fun(Line, Acc) ->
-                                case re:run(join(Line,""), MacRegex, [{capture,[1]}]) of
-                                  {match, [{Start, Length}]} ->
-                                    MacAddress = string:strip(lists:sublist(Line, Start, Length+1)),
-                                    {ok, StdMacAddress, _} =  regexp:gsub(MacAddress, "-", ":"),
-                                    [StdMacAddress|Acc];
-                                  _ ->
-                                    Acc
-                                end
-                            end, [], Lines),
+  %%  MACRegex = "[: ]((?:[0-9a-fA-F][0-9a-fA-F][:\-]){5}[0-9a-fA-F][0-9a-fA-F])",
+  %%  MACRegex = "\s((?:[0-9a-fA-F]{2}[:\-]){5}[0-9a-fA-F]{2}[^0-9a-fA-F:\-])",
+  %%  MACRegex = "^|\s((?:[0-9a-fA-F]{2}[:\-]){5}[0-9a-fA-F]{2}[^0-9a-fA-F:\-])\s|$",
+  MACRegex = "((?:[0-9a-fA-F]{2}[:\-]){5}[0-9a-fA-F]{2})",
+  Candidates0 = lists:foldl(
+                  fun(Line, Acc) ->
+                      case re:run(join(Line, ""), MACRegex, [{capture,[1]}]) of
+                        {match, [{Start, Length}]} ->
+                          MACAddress = string:strip(lists:sublist(Line, Start, Length+1)),
+                          {ok, StdMACAddress, _} =  regexp:gsub(MACAddress, "-", ":"),
+                          [StdMACAddress|Acc];
+                        _ ->
+                          Acc
+                      end
+                  end, [], Lines),
 
-    Candidates = lists:reverse(lists:filter(fun(Elem) -> Elem /= "00:00:00:00:00:00" end, Candidates0)),
-    case length(Candidates) of
-        0 -> throw({error, {no_mac_address_candidate, "No Mac Address"}});
-        _ -> ok
-    end,
-    lists:usort(Candidates).  % remove duplicates
+  %% Length check to avoid some false hits from the regex because re module does not seem to support more complex regex to handle it
+  Candidates = lists:reverse(lists:filter(fun(Elem) ->  (Elem /= "00:00:00:00:00:00" andalso
+                                                         Elem /= "00-00-00-00-00-00" andalso
+                                                         length(Elem) =< 17 ) end, Candidates0)),
+  case length(Candidates) of
+    0 -> throw({error, {no_mac_address_candidate, "No MAC Address"}});
+    _ -> ok
+  end,
+  lists:usort(Candidates).  % remove duplicates
 
 %%% @spec address() -> string()
 address() ->
