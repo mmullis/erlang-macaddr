@@ -1,6 +1,6 @@
-;==================
-Macaddr For Erlang
-;==================
+-=================-
+ Macaddr For Erlang
+-=================-
 See docs/index.html for api and more detailed information.
 
 
