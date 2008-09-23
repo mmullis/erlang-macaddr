@@ -2,6 +2,12 @@
 %%% File    : macaddr.erl
 %%% Author  : Michael Mullis <michael@mullistechnologies.com>
 %%% @doc Cross platform MAC address determination.
+%%%
+%%% Based on macaddr gem for ruby
+%%% (<a href="http://rubyforge.org/projects/codeforpeople">http://rubyforge.org/projects/codeforpeople</a>)
+%%%
+%%% Tested on Linux (x86_64), Windows Vista, and MacOSX(10.5.4)
+%%%
 %%% Works for:  <br/>
 %%% * /sbin/ifconfig  <br/>
 %%% * /bin/ifconfig  <br/>
@@ -19,7 +25,6 @@
 %%% Created : 22 Sep 2008 by Michael Mullis <michael@mullistechnologies.com>
 
 %%% @copyright 2008 Michael Mullis
-%%% need this to keep the next line from being added to doc
 %%% @end
 %%%-------------------------------------------------------------------
 -module(macaddr).
@@ -27,6 +32,7 @@
 -vsn("0.1.0").
 
 -export([address/0, address_list/0]).
+-export([mac_matcher/2]).
 
 %%% @doc Join elements of a list using separator.
 join([H|T], Sep) ->
@@ -63,27 +69,31 @@ get_interface_info(Cmd) ->
         Data -> Data
     end.
 
+%%% @doc
+%%% Exported for testability.
+%%% Internal use only.
+%%% @end
+mac_matcher(Line, Acc) ->
+  MACRegex = " (?<FOO>([0-9A-F][0-9A-F][:\\-]){5}[0-9A-F][0-9A-F])([^:\\-0-9A-F]|$)",
+  case re:run(join(Line, ""), MACRegex, [caseless, {capture,['FOO']}]) of
+    {match, [{Start, Length}]} ->
+      MACAddress = string:strip(lists:sublist(Line, Start, Length+1)),
+      {ok, StdMACAddress, _} =  regexp:gsub(MACAddress, "-", ":"),
+      [StdMACAddress|Acc];
+    _ ->
+      Acc
+  end.
+
+%%% @doc
+%%% Retrieve list of MAC addresses for machine
 %%% @spec address_list() -> List
+%%% @end
 address_list() ->
   LinesLists = lists:map(fun get_interface_info/1, ["/sbin/ifconfig", "/bin/ifconfig", "ifconfig", "ipconfig /all"]),
   {ok, ALines} = regexp:split(join(LinesLists," "), "[\r\n]"),
   Lines = lists:filter(fun(Elem) ->  Elem /= []  end, ALines),
 
-  %%  MACRegex = "[: ]((?:[0-9a-fA-F][0-9a-fA-F][:\-]){5}[0-9a-fA-F][0-9a-fA-F])",
-  %%  MACRegex = "\s((?:[0-9a-fA-F]{2}[:\-]){5}[0-9a-fA-F]{2}[^0-9a-fA-F:\-])",
-  %%  MACRegex = "^|\s((?:[0-9a-fA-F]{2}[:\-]){5}[0-9a-fA-F]{2}[^0-9a-fA-F:\-])\s|$",
-  MACRegex = "((?:[0-9a-fA-F]{2}[:\-]){5}[0-9a-fA-F]{2})",
-  Candidates0 = lists:foldl(
-                  fun(Line, Acc) ->
-                      case re:run(join(Line, ""), MACRegex, [{capture,[1]}]) of
-                        {match, [{Start, Length}]} ->
-                          MACAddress = string:strip(lists:sublist(Line, Start, Length+1)),
-                          {ok, StdMACAddress, _} =  regexp:gsub(MACAddress, "-", ":"),
-                          [StdMACAddress|Acc];
-                        _ ->
-                          Acc
-                      end
-                  end, [], Lines),
+  Candidates0 = lists:foldl(fun mac_matcher/2, [], Lines),
 
   %% Length check to avoid some false hits from the regex because re module does not seem to support more complex regex to handle it
   Candidates = lists:reverse(lists:filter(fun(Elem) ->  (Elem /= "00:00:00:00:00:00" andalso
@@ -95,6 +105,9 @@ address_list() ->
   end,
   lists:usort(Candidates).  % remove duplicates
 
+%%% @doc
+%%% Retrieve the first MAC addresses for machine
 %%% @spec address() -> string()
+%%% @end
 address() ->
     hd(address_list()).

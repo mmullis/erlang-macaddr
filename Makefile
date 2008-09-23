@@ -22,6 +22,6 @@ clean:
 docs:
 	erl -noshell -eval "edoc:application($(APPNAME), \".\", [$(DOC_OPTS)])" -s init stop
 
-test: subdirs
+test: clean subdirs
 	@echo Testing...
 	@erl -noshell -pa ebin -s macaddr_tests test -s init stop
