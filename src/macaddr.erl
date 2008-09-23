@@ -3,7 +3,7 @@
 %%% Author  : Michael Mullis <michael@mullistechnologies.com>
 %%% @doc Cross platform MAC address determination.
 %%%
-%%% Based on macaddr gem for ruby
+%%% Inspired by the macaddr gem for ruby
 %%% (<a href="http://rubyforge.org/projects/codeforpeople">http://rubyforge.org/projects/codeforpeople</a>)
 %%%
 %%% Tested on Linux (x86_64), Windows Vista, and MacOSX(10.5.4)
