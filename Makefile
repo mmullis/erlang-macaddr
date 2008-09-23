@@ -9,7 +9,7 @@ DOC_OPTS={def,{version,\"$(MACADDR_VSN)\"}}
 all: subdirs
 
 subdirs:
-	mkdir ebin
+	mkdir -p ebin
 	@for d in $(SUB_DIRECTORIES); do \
 		(cd $$d; $(MAKE)); \
 		echo $$d; \
