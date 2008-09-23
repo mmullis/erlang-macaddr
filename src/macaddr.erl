@@ -1,6 +1,7 @@
 %%%-------------------------------------------------------------------
 %%% File    : macaddr.erl
 %%% Author  : Michael Mullis <michael@mullistechnologies.com>
+%%% @copyright 2008 Mullis Technologies Corporation
 %%% @doc Cross platform MAC address determination.
 %%%
 %%% Inspired by the macaddr gem for ruby
@@ -24,7 +25,6 @@
 
 %%% Created : 22 Sep 2008 by Michael Mullis <michael@mullistechnologies.com>
 
-%%% @copyright 2008 Michael Mullis
 %%% @end
 %%%-------------------------------------------------------------------
 -module(macaddr).
@@ -69,10 +69,7 @@ get_interface_info(Cmd) ->
         Data -> Data
     end.
 
-%%% @doc
-%%% Exported for testability.
-%%% Internal use only.
-%%% @end
+%%% @doc Exported for testability.   Internal use only.
 mac_matcher(Line, Acc) ->
   MACRegex = " (?<FOO>([0-9A-F][0-9A-F][:\\-]){5}[0-9A-F][0-9A-F])([^:\\-0-9A-F]|$)",
   case re:run(join(Line, ""), MACRegex, [caseless, {capture,['FOO']}]) of
@@ -84,10 +81,8 @@ mac_matcher(Line, Acc) ->
       Acc
   end.
 
-%%% @doc
-%%% Retrieve list of MAC addresses for machine
+%%% @doc Retrieve list of MAC addresses for machine
 %%% @spec address_list() -> List
-%%% @end
 address_list() ->
   LinesLists = lists:map(fun get_interface_info/1, ["/sbin/ifconfig", "/bin/ifconfig", "ifconfig", "ipconfig /all"]),
   {ok, ALines} = regexp:split(join(LinesLists," "), "[\r\n]"),
@@ -105,9 +100,7 @@ address_list() ->
   end,
   lists:usort(Candidates).  % remove duplicates
 
-%%% @doc
-%%% Retrieve the first MAC addresses for machine
+%%% @doc Retrieve the first MAC addresses for machine
 %%% @spec address() -> string()
-%%% @end
 address() ->
     hd(address_list()).
