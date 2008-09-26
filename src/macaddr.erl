@@ -34,10 +34,6 @@
 -export([address/0, address_list/0]).
 -export([mac_matcher/2]).
 
-%%% @doc Join elements of a list using separator.
-join([H|T], Sep) ->
-    lists:flatten([H | [[Sep, X] || X <- T]]).
-
 file_exists(FileName) ->
   case filelib:is_regular(FileName) of
     true ->
@@ -72,7 +68,7 @@ get_interface_info(Cmd) ->
 %%% @doc Exported for testability.   Internal use only.
 mac_matcher(Line, Acc) ->
   MACRegex = " (?<FOO>([0-9A-F][0-9A-F][:\\-]){5}[0-9A-F][0-9A-F])([^:\\-0-9A-F]|$)",
-  case re:run(join(Line, ""), MACRegex, [caseless, {capture,['FOO']}]) of
+  case re:run(Line, MACRegex, [caseless, {capture,['FOO']}]) of
     {match, [{Start, Length}]} ->
       MACAddress = string:strip(lists:sublist(Line, Start, Length+1)),
       {ok, StdMACAddress, _} =  regexp:gsub(MACAddress, "-", ":"),
@@ -85,7 +81,7 @@ mac_matcher(Line, Acc) ->
 %%% @spec address_list() -> List
 address_list() ->
   LinesLists = lists:map(fun get_interface_info/1, ["/sbin/ifconfig", "/bin/ifconfig", "ifconfig", "ipconfig /all"]),
-  {ok, ALines} = regexp:split(join(LinesLists," "), "[\r\n]"),
+  {ok, ALines} = regexp:split(string:join(LinesLists," "), "[\r\n]"),
   Lines = lists:filter(fun(Elem) ->  Elem /= []  end, ALines),
 
   Candidates0 = lists:foldl(fun mac_matcher/2, [], Lines),
