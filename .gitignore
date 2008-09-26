@@ -2,3 +2,5 @@
 *.beam
 *.dump
 ebin/*
+semantic.cache
+
