@@ -1,3 +1,5 @@
+%%% -*- Erlang -*-
+%%% -*- erlang-indent-level: 2 -*-
 %%%-------------------------------------------------------------------
 %%% File    : macaddr.erl
 %%% Author  : Michael Mullis <michael@mullistechnologies.com>
@@ -66,6 +68,7 @@ get_interface_info(Cmd) ->
     end.
 
 %%% @doc Exported for testability.   Internal use only.
+-spec mac_matcher(Line::string(), Acc::[string()]) -> [string()].
 mac_matcher(Line, Acc) ->
   MACRegex = " (?<FOO>([0-9A-F][0-9A-F][:\\-]){5}[0-9A-F][0-9A-F])([^:\\-0-9A-F]|$)",
   case re:run(Line, MACRegex, [caseless, {capture,['FOO']}]) of
@@ -78,7 +81,7 @@ mac_matcher(Line, Acc) ->
   end.
 
 %%% @doc Retrieve list of MAC addresses for machine
-%%% @spec address_list() -> List
+-spec(address_list() -> [string()]).
 address_list() ->
   LinesLists = lists:map(fun get_interface_info/1, ["/sbin/ifconfig", "/bin/ifconfig", "ifconfig", "ipconfig /all"]),
   {ok, ALines} = regexp:split(string:join(LinesLists," "), "[\r\n]"),
@@ -97,6 +100,6 @@ address_list() ->
   lists:usort(Candidates).  % remove duplicates
 
 %%% @doc Retrieve the first MAC addresses for machine
-%%% @spec address() -> string()
+-spec(address() -> string()).
 address() ->
     hd(address_list()).
