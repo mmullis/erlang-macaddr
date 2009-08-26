@@ -31,9 +31,13 @@
 %%%-------------------------------------------------------------------
 -module(macaddr).
 -author("michael@mullistechnologies.com").
+-author("kevin@hypotheticalabs.com").
+
+-define(IFCONFIG_CMDS, ["/sbin/ifconfig", "/bin/ifconfig", "ifconfig", "ipconfig"]).
+
 -vsn("0.1.0").
 
--export([address/0, address_list/0]).
+-export([address/0, address/1, address_list/0]).
 -export([mac_matcher/2]).
 
 file_exists(FileName) ->
@@ -58,6 +62,8 @@ identify_null_file() ->
     end.
 
 %% Warning: do not export this because it allows arbitrary os command execution
+get_interface_info("ipconfig") ->
+    get_interface_info("ipconfig /all");
 get_interface_info(Cmd) ->
     %% @TODO os:type() may be more useful here than the original approach
     CmdString = Cmd ++ " 2>" ++ identify_null_file(),
@@ -83,11 +89,12 @@ mac_matcher(Line, Acc) ->
 %%% @doc Retrieve list of MAC addresses for machine
 -spec(address_list() -> [string()]).
 address_list() ->
-  LinesLists = lists:map(fun get_interface_info/1, ["/sbin/ifconfig", "/bin/ifconfig", "ifconfig", "ipconfig /all"]),
-  {ok, ALines} = regexp:split(string:join(LinesLists," "), "[\r\n]"),
-  Lines = lists:filter(fun(Elem) ->  Elem /= []  end, ALines),
+    Lines = extract_interface_info(),
+    extract_mac_addresses(Lines).
 
-  Candidates0 = lists:foldl(fun mac_matcher/2, [], Lines),
+%%% @doc Extract MAC addresses from command results
+extract_mac_addresses(CmdOutput) ->
+  Candidates0 = lists:foldl(fun mac_matcher/2, [], CmdOutput),
 
   %% Length check to avoid some false hits from the regex because re module does not seem to support more complex regex to handle it
   Candidates = lists:reverse(lists:filter(fun(Elem) ->  (Elem /= "00:00:00:00:00:00" andalso
@@ -99,7 +106,26 @@ address_list() ->
   end,
   lists:usort(Candidates).  % remove duplicates
 
+%%% @doc Retrieve interface info from operating system
+extract_interface_info() ->
+    execute_commands(?IFCONFIG_CMDS).
+
+extract_interface_info(Interface) ->
+    Cmds = [Cmd ++ " " ++ Interface || Cmd <- ?IFCONFIG_CMDS],
+    execute_commands(Cmds).
+
+execute_commands(Cmds) ->
+    {ok, Results} = regexp:split(string:join([get_interface_info(Cmd) || Cmd <- Cmds], " "), "[\r\n]"),
+    [R || R <- Results,
+          R /= []].
+
 %%% @doc Retrieve the first MAC addresses for machine
 -spec(address() -> string()).
 address() ->
     hd(address_list()).
+
+%%% @doc Retrieve MAC address for specific interface
+-spec(address(string()) -> string()).
+address(Interface) ->
+    Lines = extract_interface_info(Interface),
+    extract_mac_addresses(Lines).
