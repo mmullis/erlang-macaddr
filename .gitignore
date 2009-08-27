@@ -3,4 +3,4 @@
 *.dump
 ebin/*
 semantic.cache
-
+coverage
