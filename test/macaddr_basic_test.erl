@@ -12,7 +12,8 @@
 basic_test_() ->
     [?_assert(length(macaddr:address()) > 0),
      ?_assert(length(macaddr:address_list()) > 0),
-     ?_assert(length(macaddr:address()) /= "00-00-00-00-00-00")
+     ?_assert(length(macaddr:address()) /= "00-00-00-00-00-00"),
+     ?_assertException(throw, {error, {no_mac_address_candidate,_}}, macaddr:address("notreal"))
     ].
 
 matching_test_() ->

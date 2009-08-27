@@ -8,8 +8,10 @@ INCLUDE=../include
 ERL_COMPILE_FLAGS += -I$(INCLUDE) +warn_unused_vars +nowarn_shadow_vars +warn_unused_import
 
 SOURCES= \
+	eunit_helper.erl \
 	macaddr_tests.erl \
 	macaddr_basic_test.erl
+
 
 OBJECTS=$(SOURCES:%.erl=$(EBIN)/%.$(EMULATOR))
 
@@ -20,4 +22,3 @@ clean:
 
 $(EBIN)/%.$(EMULATOR):%.erl
 	erlc -pa $(EBIN) -W $(ERL_COMPILE_FLAGS) -o$(EBIN) $<
-
