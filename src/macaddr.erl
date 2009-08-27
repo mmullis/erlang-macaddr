@@ -33,7 +33,7 @@
 -author("michael@mullistechnologies.com").
 -author("kevin@hypotheticalabs.com").
 
--define(IFCONFIG_CMDS, ["/sbin/ifconfig", "/bin/ifconfig", "ifconfig", "ipconfig"]).
+-define(IFCONFIG_CMDS, ["/sbin/ifconfig", "/bin/ifconfig", "ifconfig", "ipconfig /all"]).
 
 -vsn("0.1.0").
 
@@ -62,8 +62,6 @@ identify_null_file() ->
     end.
 
 %% Warning: do not export this because it allows arbitrary os command execution
-get_interface_info("ipconfig") ->
-    get_interface_info("ipconfig /all");
 get_interface_info(Cmd) ->
     %% @TODO os:type() may be more useful here than the original approach
     CmdString = Cmd ++ " 2>" ++ identify_null_file(),
