@@ -26,3 +26,6 @@ docs:
 test: clean subdirs
 	@echo Testing...
 	@erl -noshell -pa ebin -s macaddr_tests test -s init stop
+
+console: clean test
+	erl -pa ebin
